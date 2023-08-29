@@ -1,0 +1,12 @@
+POST :
+http://localhost:5000/api/user
+{
+  "nombreCompleto" : "Pre",
+  "email" : "pre150492@gmail.com",
+  "password" : "PreDowlani1234!"
+}
+{
+  "nombreCompleto" : "Jose",
+  "email" : "cherok27@gmail.com",
+  "password" : "Josejuan27!"
+}
