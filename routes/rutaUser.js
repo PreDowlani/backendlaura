@@ -30,55 +30,66 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Crear un nuevo usuario
-// router.post('/', async (req, res) => {
-//   const usuario = new Usuario({
-//     nombreCompleto: req.body.nombreCompleto,
-//     email: req.body.email,
-//     password: req.body.password
-//   });
 
-//   try {
-//     const nuevoUsuario = await usuario.save();
-//     res.status(201).json(nuevoUsuario);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
+router.post("/", async (req, res, next) => {
+  const { nombreCompleto, email, password } = req.body;
+  let existeUsuario;
 
-// Crear un nuevo usuario COMPLETO CON VERIFICACION
-router.post('/', async (req, res) => {
-    const { nombreCompleto, email, password } = req.body;
-  
+  //Comprobamos primero si el email del nuevo usuario ya existe en nuestro Base de Datos:
+  try {
+    existeUsuario = await Usuario.findOne({ email: email });
+  } catch (err) {
+    res.status(500).json({
+      mensaje: `Error en los datos `,
+      error: err.messaje,
+    });
+    return next(err);
+  }
+
+  //Si ya existe un usuario con el mismo e-mail , le saldra error:
+  // let nuevoUsuario;
+  if (existeUsuario) {
+    const error = new Error(" Ya existe un usuario con el mismo e-mail");
+    error.code = 401;
+    return next(error);
+    // Si en caso contrario , tras verificar que no existe el nuevo email en nuestro base de datos , procedemos a crear el  nuevo usuario siguiendo nuestro modelo Schema.
+  } else {
+    //creamos el variable para encriptar la contraseña
+    let hashedPassword;
     try {
-      // Verificar si el correo electrónico ya está registrado
-      const usuarioExistente = await Usuario.findOne({ email });
-      if (usuarioExistente) {
-        return res.status(400).json({ message: 'Email registrado, por favor prueba con otro email' });
-      }
-      let hashedPassword;
-      try {
-        // hacemos la encriptacion con un  valor de 10(son las capas de seguridad) recomdable entre 10-14
-        hashedPassword = await bcrypt.hash(password, 10);
-      } catch (error) {
-        const err = new Error("No se ha podido crear el usuario");
-        err.code = 500;
-        return next(err);
-      }
-  
-      const usuario = new Usuario({
-        nombreCompleto,
-        email,
-        password : hashedPassword
-      });
-  
-      const nuevoUsuario = await usuario.save();
-      res.status(201).json(nuevoUsuario);
+      // hacemos la encriptacion con un  valor de 10(son las capas de seguridad) recomdable entre 10-14
+      hashedPassword = await bcrypt.hash(password, 10);
     } catch (error) {
-      res.status(400).json({ message: "La contraseña debe tener mínimo 8 caracteres, contenga al menos una mayúscula, un dígito y un carácter especial" });
+      const err = new Error("No se ha podido crear el usuario");
+      err.code = 500;
+      return next(err);
     }
-  });
-  
+    console.log(hashedPassword);
+    const nuevoUsuario = new Usuario({
+      nombreCompleto,
+      email,
+      password: hashedPassword,
+    });
+    console.log(nuevoUsuario);
+
+    //procedemos a guardar dicho usuario en nuestro BDD.
+    try {
+      await nuevoUsuario.save();
+
+      // si produce algun fallo , lo comunicaremos
+    } catch (err) {
+      const error = new Error("No se han podido guardar los datos");
+      error.code = 500;
+      return next(err);
+    }
+    // si todo esta bien , mostraremos que el usuario nuevo esta creado
+    console.log(nuevoUsuario);
+    res.status(200).json({
+      mensaje: `Usuario creado con éxito`,
+      usuarioCreado: nuevoUsuario,
+    });
+  }
+});
 
 // Actualizar un usuario por su ID
 router.put('/:id', async (req, res) => {
