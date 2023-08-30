@@ -75,7 +75,7 @@ router.post('/', async (req, res) => {
       const nuevoUsuario = await usuario.save();
       res.status(201).json(nuevoUsuario);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(400).json({ message: "La contraseña debe tener mínimo 8 caracteres, contenga al menos una mayúscula, un dígito y un carácter especial" });
     }
   });
   
