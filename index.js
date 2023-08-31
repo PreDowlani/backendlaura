@@ -11,6 +11,9 @@ app.use(express.json());
 const rutaUser = require("./routes/rutaUser");
 app.use("/api/usuario",rutaUser)
 
+const rutaBlog = require("./routes/rutaBlog");
+app.use("/api/blog",rutaBlog)
+
 
 app.use((req,res)=> {
     res.status(404).json({
