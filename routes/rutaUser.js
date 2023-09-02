@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken"); //importamos a jwt para conseguir el token 
 
 const Usuario = require('../models/modelUser'); 
 // Asegúrate de proporcionar la ruta correcta al modelo Usuario
-const Role = require("../models/modelRol");
+
 
 // Obtener todos los usuarios
 router.get('/', async (req, res) => {
@@ -177,5 +177,52 @@ router.post('/login', async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   });
+
+
+  router.put('/', async (req, res, next) => {
+    try {
+      const nuevoRole = req.body.role;
+  
+      // Obtén todos los usuarios
+      const todosLosUsuarios = await Usuario.find({});
+  
+      // Itera sobre cada usuario y actualiza el campo "role"
+      for (const usuario of todosLosUsuarios) {
+        usuario.role = nuevoRole;
+        await usuario.save();
+      }
+  
+      res.json({ message: 'Usuarios actualizados con el nuevo rol' });
+    } catch (error) {
+      const err = new Error("No se han actualizado los usuarios");
+      err.code = 500;
+      return next(err);
+    }
+  });
+
+  router.put('/:id/cambiar-rol', async (req, res, next) => {
+    const userId = req.params.id;
+    const nuevoRol = 'admin'; // El nuevo rol que deseas asignar
+  
+    try {
+      const usuario = await Usuario.findById(userId);
+  
+      if (!usuario) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+  
+      // Actualiza el rol del usuario
+      usuario.role = nuevoRol;
+      await usuario.save();
+  
+      res.json({ message: 'Rol del usuario actualizado a "admin"' });
+    } catch (error) {
+      const err = new Error("Error al cambiar el rol del usuario");
+      err.code = 500;
+      return next(err);
+    }
+  });
+  
+  
 
 module.exports = router;
