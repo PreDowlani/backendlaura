@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 
 const Blog = require("../models/modelBlog");
+const authorizeAdmin = require("../middleware/autorizarAdmin")
 
 
-router.post("/", async(req,res,next) => {
+router.post("/", authorizeAdmin, async(req,res,next) => {
     const {imagenDestacada,titulo,subtitulo,descripcion,fecha,imagenes} = req.body
     let existeTituloBlog ;
     try{
@@ -62,5 +63,15 @@ router.get("/", async(req,res,next)=>{
         todoBlog : blogs,
     });
 })
+
+// Ruta para editar un blog (solo accesible para admins)
+router.put('/:id', authorizeAdmin, async (req, res) => {
+    try {
+      const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      res.json(updatedBlog);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al editar el blog' });
+    }
+  });
 
 module.exports = router;
