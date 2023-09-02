@@ -47,7 +47,11 @@ const usuarioSchema = new mongoose.Schema({
           },
           message: props => `La contraseña no cumple con los requisitos.`
       }
-    }
+    },
+    role: {
+        type: String,
+        default: 'suscriptor' // Valor por defecto
+      }
 });
 
 // Aplicar el plugin de mongoose-unique-validator al esquema

@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken"); //importamos a jwt para conseguir el token 
 
 const Usuario = require('../models/modelUser'); 
 // Asegúrate de proporcionar la ruta correcta al modelo Usuario
+const Role = require("../models/modelRol");
 
 // Obtener todos los usuarios
 router.get('/', async (req, res) => {
