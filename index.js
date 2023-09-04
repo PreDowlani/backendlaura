@@ -2,11 +2,13 @@ const express = require ("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
+const bodyParser = require('body-parser');
 
 const port = 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 const rutaUser = require("./routes/rutaUser");
 app.use("/api/usuario",rutaUser)
@@ -14,6 +16,8 @@ app.use("/api/usuario",rutaUser)
 const rutaBlog = require("./routes/rutaBlog");
 app.use("/api/blog",rutaBlog)
 
+const rutaNewsletter = require("./routes/rutaNewsletter");
+app.use("/api/subscribe",rutaNewsletter)
 
 app.use((req,res)=> {
     res.status(404).json({
